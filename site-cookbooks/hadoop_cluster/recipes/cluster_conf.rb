@@ -3,33 +3,16 @@
 # Recipe::        cluster_conf
 #
 class Chef::Recipe; include HadoopCluster ; end
+include_recipe 'ebs'
 
 #
 # Configuration files
 #
-# Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
-#
-template_variables = {
-  :namenode_address       => namenode_address,
-  :jobtracker_address     => jobtracker_address,
-  :mapred_local_dirs      => mapred_local_dirs.join(','),
-  :dfs_name_dirs          => dfs_name_dirs.join(','),
-  :dfs_data_dirs          => dfs_data_dirs.join(','),
-  :fs_checkpoint_dirs     => fs_checkpoint_dirs.join(','),
-  :local_hadoop_dirs      => local_hadoop_dirs,
-  :persistent_hadoop_dirs => persistent_hadoop_dirs,
-  :all_cluster_volumes    => all_cluster_volumes,
-  :cluster_ebs_volumes    => cluster_ebs_volumes,
-  :ganglia                => provider_for_service("#{node[:cluster_name]}-gmetad"),
-  :ganglia_address        => provider_private_ip("#{node[:cluster_name]}-gmetad"),
-  :ganglia_port           => 8649,
-}
-Chef::Log.debug template_variables.inspect
 %w[raw_settings.yaml core-site.xml fairscheduler.xml hdfs-site.xml mapred-site.xml hadoop-metrics.properties].each do |conf_file|
   template "/etc/hadoop/conf/#{conf_file}" do
     owner "root"
     mode "0644"
-    variables(template_variables)
+    variables(template_variables(:wait))
     source "#{conf_file}.erb"
   end
 end
@@ -37,7 +20,7 @@ end
 template "/etc/default/#{node[:hadoop][:hadoop_handle]}" do
   owner "root"
   mode "0644"
-  variables(template_variables)
+  variables(template_variables(:wait))
   source "etc_default_hadoop.erb"
 end
 

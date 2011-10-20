@@ -1,13 +1,44 @@
 module HadoopCluster
 
+  # Template variables
+  def template_variables(wait = false)
+    template_vars = node[:hadoop][:template_variables]
+    unless template_vars
+      node.set[:hadoop][:template_variables] = {
+        :namenode_address       => namenode_address(wait),
+        :jobtracker_address     => jobtracker_address(wait),
+        :mapred_local_dirs      => mapred_local_dirs.join(','),
+        :dfs_name_dirs          => dfs_name_dirs.join(','),
+        :dfs_data_dirs          => dfs_data_dirs.join(','),
+        :fs_checkpoint_dirs     => fs_checkpoint_dirs.join(','),
+        :local_hadoop_dirs      => local_hadoop_dirs,
+        :persistent_hadoop_dirs => persistent_hadoop_dirs,
+        :all_cluster_volumes    => all_cluster_volumes,
+        :cluster_ebs_volumes    => cluster_ebs_volumes,
+        :ganglia                => ganglia_address,
+       :ganglia_address        => ganglia_address,
+        :ganglia_port           => 8649,
+      }
+       node.save
+       template_vars = node[:hadoop][:template_variables]
+       Chef::Log.info "template_variables: #{template_vars.inspect}"
+    end
+    return template_vars
+  end
+
   # The namenode's hostname, or the local node's numeric ip if 'localhost' is given
-  def namenode_address
-    provider_private_ip("#{node[:cluster_name]}-namenode")
+  def namenode_address(wait = false)
+    provider_private_ip("#{node[:cluster_name]}-namenode", wait)
   end
 
   # The jobtracker's hostname, or the local node's numeric ip if 'localhost' is given
-  def jobtracker_address
-    provider_private_ip("#{node[:cluster_name]}-jobtracker")
+  def jobtracker_address(wait = false)
+    provider_private_ip("#{node[:cluster_name]}-jobtracker", wait)
+  end
+
+  # Ganglia hostname
+  def ganglia_address(wait = false)
+    provider_private_ip("#{node[:cluster_name]}-gmetad", wait)
   end
 
   def hadoop_package component
@@ -110,5 +141,8 @@ class Chef::Recipe
   include HadoopCluster
 end
 class Chef::Resource::Directory
+  include HadoopCluster
+end
+class Chef::Resource::Template
   include HadoopCluster
 end

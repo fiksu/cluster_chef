@@ -57,9 +57,23 @@ module ClusterServiceDiscovery
   end
 
   # Find the most recent node that registered to provide the given service
-  def provider_for_service service_name
-    all_providers_for_service(service_name).last
-  end
+  def provider_for_service service_name, wait=false
+    # FIXME: actually, we shouldn't check the node itself first, but Chef dependencies resolution is so crazy that we need to achieve some compromise here
+    # Also, even this hack works only in 50% of cases (it seems that chef_attributes only get applied successfully when node is killed _after_ setting up some things)
+    Chef::Log.warn "This shouldn't be nil for at least the master node: #{node[:provides_service].inspect}"
+    provider = (node[:provides_service] && node[:provides_service][service_name]) ? node : all_providers_for_service(service_name).last
+
+    if wait && provider.nil?
+      started_at = Time.now
+      begin
+        Chef::Log.warn "Waiting until service #{service_name.inspect} gets provided (#{(Time.now - started_at).to_i}s)..."
+        sleep 3
+        provider = all_providers_for_service(service_name).last
+      end while provider.nil?
+    end
+
+    return provider
+   end
 
   # Register to provide the given service.
   # If you pass in a hash of information, it will be added to
@@ -75,8 +89,8 @@ module ClusterServiceDiscovery
   # given service, get most recent address
 
   # The local-only ip address for the most recent provider for service_name
-  def provider_private_ip service_name
-    server = provider_for_service(service_name) or return
+  def provider_private_ip service_name, wait=false
+    server = provider_for_service(service_name, wait) or return
     private_ip_of(server)
   end
 

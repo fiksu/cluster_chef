@@ -32,5 +32,5 @@ end
 
 class Chef::Recipe ;              include ClusterEbsVolumes ; end
 class Chef::Resource::Directory ; include ClusterEbsVolumes ; end
-class Chef::Resource             ; include ClusterEbsVolumes ; end
-
+class Chef::Resource            ; include ClusterEbsVolumes ; end
+class Chef::Resource::Template  ; include ClusterEbsVolumes ; end
