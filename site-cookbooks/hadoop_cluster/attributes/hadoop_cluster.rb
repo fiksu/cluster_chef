@@ -109,8 +109,9 @@ hadoop_performance_settings =
 hadoop_performance_settings[:local_disks]=[]
 [ [ '/mnt',  'block_device_mapping_ephemeral0'],
   [ '/mnt2', 'block_device_mapping_ephemeral1'],
-  [ '/mnt3', 'block_device_mapping_ephemeral2'],
-  [ '/mnt4', 'block_device_mapping_ephemeral3'],
+# FIXME: available volumes actually depend on specific instance, so this stuff needs to be moved to hadoop_performance_settings
+#  [ '/mnt3', 'block_device_mapping_ephemeral2'],
+#  [ '/mnt4', 'block_device_mapping_ephemeral3'],
 ].each do |mnt, ephemeral|
   dev_str = node[:ec2][ephemeral] or next
   # sometimes ohai leaves the /dev/ off.
