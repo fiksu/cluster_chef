@@ -1,5 +1,5 @@
-name        'hadoop_s3_keys'
-description 'applies to all nodes in the hadoop cluster'
+name        'aws_keys'
+description 'Assign AWS credentials to node attributes'
 
 # Attributes applied if the node doesn't have it set already.
 default_attributes({
@@ -8,5 +8,6 @@ default_attributes({
       :aws_access_key        => Chef::Config.knife[:aws_access_key_id],
       :aws_access_key_id     => Chef::Config.knife[:aws_access_key_id],
       :aws_secret_access_key => Chef::Config.knife[:aws_secret_access_key],
+      :availability_zone     => Chef::Config.knife[:availability_zone]
     },
   })
