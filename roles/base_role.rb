@@ -3,6 +3,7 @@ description 'top level attributes, applies to all nodes'
 
 run_list *%w[
 
+  sys::fix_gemspecs
   build-essential
   ubuntu
   motd
