@@ -20,7 +20,7 @@
 #
 # Format Namenode
 #
-execute 'format_namenode **REMOVE FROM RUNLIST ON SUCCESSFUL BOOTSTRAP**' do
+execute 'format_namenode' do
   command %Q{yes 'Y' | hadoop namenode -format ; true}
   user 'hdfs'
   creates '/mnt/hadoop/hdfs/name/current/VERSION'
