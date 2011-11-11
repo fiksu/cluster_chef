@@ -13,9 +13,11 @@ if node[:ebs_volumes]
       device                conf[:device]
 
       if conf[:volume_id]
+        Chef::Log.info "Attaching volume #{conf[:volume_id].inspect}"
         volume_id             conf[:volume_id]
         action :attach
       else
+        Chef::Log.info "Attaching snapshot #{conf[:snapshot_id].inspect}"
         snapshot_id           conf[:snapshot_id]
         action [:create, :attach]
       end
